@@ -25,7 +25,7 @@ __global__ void Draw(char *frame) {
 		} else if (y == 0 or y == H-1 or x == 0 or x == W-2) {
 			c = ':';
 		} else if (y > 4 and y < H-1) {
-			if ((x == 33 and y == H-1) or (x < 22 and x > H-2*y+15)) {
+			if ((x == 33 and y == H-2) or (x < 22 and x > H-2*y+15)) {
 				c = '#';
 			}
 			else if (x == 33) {
