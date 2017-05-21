@@ -73,7 +73,7 @@ __global__ void CalculateFixed(const float *background, const float *target, con
                 tmpfixedb += background[curb*3 + 2];
             }*/
             const int neighbor_bg_idx = wb*(clipvalue(oy + stride*(yt + offsets[i][0]), 0, hb)) + clipvalue(ox + stride*(xt + offsets[i][1]), 0, wb);
-            if (!interior(neighbor_target_idx, wt, ht) or !white(mask[neighbor_target_idx])) {
+            if (!(0 <= neighbor_y and neighbor_y < ht and 0 <= neighbor_x and neighbor_x < wt) or !white(mask[neighbor_target_idx])) {
                 tmpfixedr += background[neighbor_bg_idx*3 + 0];
                 tmpfixedg += background[neighbor_bg_idx*3 + 1];
                 tmpfixedb += background[neighbor_bg_idx*3 + 2];
@@ -108,9 +108,9 @@ __global__ void PoissonImageCloningIteration(const float *fixed, const float *ma
                 newb += buf1[neighbor_target_idx*3 + 2];
             }
         }
-        buf2[curt*3 + 0] = omega * newr * 0.25f + ( 1 - omega)*buf1[curt*3 + 0];
-        buf2[curt*3 + 1] = omega * newg * 0.25f + ( 1 - omega)*buf1[curt*3 + 1];
-        buf2[curt*3 + 2] = omega * newb * 0.25f + ( 1 - omega)*buf1[curt*3 + 2];
+        buf2[curt*3 + 0] = newr * 0.25f;//omega * newr * 0.25f + ( 1 - omega)*buf1[curt*3 + 0];
+        buf2[curt*3 + 1] = newg * 0.25f;//omega * newg * 0.25f + ( 1 - omega)*buf1[curt*3 + 1];
+        buf2[curt*3 + 2] = newb * 0.25f;//omega * newb * 0.25f + ( 1 - omega)*buf1[curt*3 + 2];
     }
 }
 
@@ -180,7 +180,7 @@ void PoissonImageCloning(
     // scale up
     for (int scale=16; scale>0; scale>>=1) {
         CalculateFixed<<<gdim, bdim>>>( output, target, mask, fixed, wb, hb, wt, ht, oy, ox, scale);
-        for (int iter = 0; iter < 100; ++iter) {
+        for (int iter = 0; iter < 50; ++iter) {
             PoissonImageCloningIteration<<<gdim, bdim>>>(fixed, mask, buf1, buf2, wt, ht, scale, 1);
             PoissonImageCloningIteration<<<gdim, bdim>>>(fixed, mask, buf2, buf1, wt, ht, scale, 1);
         }
