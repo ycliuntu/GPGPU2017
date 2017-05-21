@@ -4,10 +4,9 @@
 __device__ __host__ int CeilDiv(int a, int b) { return (a-1)/b + 1; }
 __device__ __host__ int CeilAlign(int a, int b) { return CeilDiv(a, b) * b; }
 
-__constant__ int directions[4][2] = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } };
+__constant__ int directions[4][2] = {{ -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }};
 
 __device__ __host__ bool white(float val) { return val > 127.0f; }
-__device__ __host__ bool interior(int x, int w, int h, int channel = 1) { return x >= 0 && x < w * h * channel ;}
 __device__ __host__ int clipvalue(int x, int lb, int ub) {return min(ub-1, max(x, lb));}
 
 //__device__ __host__
@@ -110,6 +109,7 @@ __global__ void scaleUp(
         int basey = (yt/stride) * stride;
         int basex = (xt/stride) * stride;
         int baset = basey*wt + basex;
+        // interpolation?
         if (0 <= basey and basey < ht and 0 <= basex and basex < wt) {
             output[curt*3 + 0] = output[baset*3 + 0];
             output[curt*3 + 1] = output[baset*3 + 1];
